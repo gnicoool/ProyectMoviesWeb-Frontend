@@ -53,7 +53,7 @@ export function renderCatalog(container) {
 
       const randomBtn = document.createElement('button');
       randomBtn.type = 'button';
-      randomBtn.className = 'btn-primary';
+      randomBtn.className = 'btn-secondary';
       randomBtn.textContent = 'Película aleatoria';
 
       controls.appendChild(searchInput);

@@ -55,6 +55,25 @@ body {
   cursor: not-allowed;
 }
 
+.btn-secondary {
+  display: inline-block;
+  text-decoration: none;
+  background: #D4A373;
+  color: black;
+  padding: 10px 26px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background 0.2s;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  background: #a8835f;
+}
+
 .btn-back {
   display: inline-block;
   text-decoration: none;
@@ -481,9 +500,9 @@ body {
   flex-direction: column;
   gap: 20px;
   padding: 22px 24px 26px;
-  background: var(--bg-card-img);
+  background: var(--bg-card);
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid black;
   box-shadow: var(--shadow-card);
 }
 
@@ -681,4 +700,39 @@ body {
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
+}
+
+.detalle-img-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detalle-img-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-danger {
+  display: inline-block;
+  background: transparent;
+  color: #dc2626;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  border: 1.5px solid #dc2626;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
