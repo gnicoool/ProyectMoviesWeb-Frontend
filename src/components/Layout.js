@@ -20,6 +20,7 @@ export function createLayout() {
     { href: '/', text: 'Inicio', nav: 'home' },
     { href: '/movies', text: 'Catalogo', nav: 'catalog' },
     { href: '/crear', text: 'Agregar película', nav: 'crear' },
+    { href: 'https://github.com/gnicoool/ProyectMoviesWeb-Frontend', text: 'Ver repositorio'},
   ];
 
   links.forEach(({ href, text, nav: navKey }) => {
