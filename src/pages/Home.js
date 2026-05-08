@@ -1,12 +1,17 @@
-import { getMovies, resolveMediaUrl, getCategories, getDirectors } from '../services/api.js';
+import {
+  getRandomMovies,
+  getMoviesCount,
+  resolveMediaUrl,
+  getCategories,
+  getDirectors,
+} from '../services/api.js';
 
 export function renderHome(container) {
   container.innerHTML = '<p class="status-msg">Cargando películas destacadas...</p>';
 
-  getMovies()
-    .then((movies) => {
-      const list = Array.isArray(movies) ? movies : [];
-      const featured = list.slice(0, 10);
+  Promise.all([getRandomMovies(10), getMoviesCount()])
+    .then(([randomList, moviesCount]) => {
+      const featured = Array.isArray(randomList) ? randomList : [];
       container.innerHTML = '';
 
       const page = document.createElement('div');
@@ -20,7 +25,7 @@ export function renderHome(container) {
         <p class="home-sub">Explora la colección</p>
         <a href="/movies" class="btn-primary home-cta">Ver catálogo</a>
         <div class="home-stats">
-          <div class="home-stat"><span class="home-stat-num" id="stat-movies">${list.length}</span><span class="home-stat-label">Películas</span></div>
+          <div class="home-stat"><span class="home-stat-num" id="stat-movies">${moviesCount}</span><span class="home-stat-label">Películas</span></div>
           <div class="home-stat"><span class="home-stat-num" id="stat-directors">—</span><span class="home-stat-label">Directores</span></div>
           <div class="home-stat"><span class="home-stat-num" id="stat-genres">—</span><span class="home-stat-label">Géneros</span></div>
         </div>
@@ -29,7 +34,7 @@ export function renderHome(container) {
       const gallery = document.createElement('section');
       gallery.className = 'home-movies';
       gallery.innerHTML = `
-        <h2 class="home-movies-title">Destacadas</h2>
+        <h2 class="home-movies-title">Destacadas al azar</h2>
         <div class="home-gallery-grid" id="home-gallery-grid"></div>
       `;
 

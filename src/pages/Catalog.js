@@ -1,6 +1,6 @@
 import { createCard } from '../components/cardMovie/Card.js';
 import {
-  getMovies,
+  getMoviesPage,
   getCategories,
   getDirectors,
   getLangs,
@@ -135,12 +135,42 @@ export function renderCatalog(container) {
       const gridHost = document.createElement('div');
       gridHost.id = 'catalog-grid-host';
 
+      const pager = document.createElement('div');
+      pager.className = 'catalog-pager';
+      pager.style.display = 'flex';
+      pager.style.alignItems = 'center';
+      pager.style.justifyContent = 'center';
+      pager.style.gap = '12px';
+      pager.style.marginTop = '16px';
+
+      const prevBtn = document.createElement('button');
+      prevBtn.type = 'button';
+      prevBtn.className = 'btn-secondary';
+      prevBtn.textContent = 'Anterior';
+
+      const pageInfo = document.createElement('span');
+      pageInfo.className = 'form-hint';
+
+      const nextBtn = document.createElement('button');
+      nextBtn.type = 'button';
+      nextBtn.className = 'btn-secondary';
+      nextBtn.textContent = 'Siguiente';
+
+      pager.appendChild(prevBtn);
+      pager.appendChild(pageInfo);
+      pager.appendChild(nextBtn);
+
       page.appendChild(header);
       page.appendChild(filters);
       page.appendChild(gridHost);
+      page.appendChild(pager);
       container.appendChild(page);
 
       let allItems = [];
+      let currentPage = 1;
+      const pageSize = 8;
+      let totalPages = 1;
+      let hasMorePages = false;
 
       function renderGrid(items) {
         gridHost.innerHTML = '';
@@ -169,27 +199,50 @@ export function renderCatalog(container) {
 
       function reloadFromApi() {
         gridHost.innerHTML = '<p class="status-msg">Cargando...</p>';
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        pageInfo.textContent = 'Cargando página...';
         const apiQuery = collectFilters(page);
-        getMovies(apiQuery)
-          .then((movies) => {
-            const list = Array.isArray(movies) ? movies : [];
+        getMoviesPage(apiQuery, currentPage, pageSize)
+          .then((result) => {
+            const list = Array.isArray(result.items) ? result.items : [];
             allItems = list;
+            totalPages = Number(result.total_pages) > 0 ? Number(result.total_pages) : 1;
+            hasMorePages = Boolean(result.has_more);
+            const resolvedPage =
+              Number(result.page) > 0 ? Number(result.page) : currentPage;
+            currentPage = resolvedPage;
             renderGrid(applyLocalSearch(allItems));
+            pageInfo.textContent = hasMorePages
+              ? `Página ${currentPage} · ${pageSize} por página`
+              : `Página ${currentPage} de ${totalPages} · ${pageSize} por página`;
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = !hasMorePages && currentPage >= totalPages;
           })
           .catch(() => {
             gridHost.innerHTML =
               '<p class="status-msg error">No se pudieron cargar las películas.</p>';
+            pageInfo.textContent = '';
           });
       }
 
       reloadFromApi();
 
       filters.querySelectorAll('select').forEach((el) => {
-        el.addEventListener('change', reloadFromApi);
+        el.addEventListener('change', () => {
+          currentPage = 1;
+          reloadFromApi();
+        });
       });
-      minInput.addEventListener('change', reloadFromApi);
+      minInput.addEventListener('change', () => {
+        currentPage = 1;
+        reloadFromApi();
+      });
       minInput.addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') reloadFromApi();
+        if (e.key === 'Enter') {
+          currentPage = 1;
+          reloadFromApi();
+        }
       });
 
       searchInput.addEventListener('input', () => {
@@ -201,6 +254,18 @@ export function renderCatalog(container) {
         if (visible.length === 0) return;
         const pick = visible[Math.floor(Math.random() * visible.length)];
         navigate(`/movies/${pick.id_movie}`);
+      });
+
+      prevBtn.addEventListener('click', () => {
+        if (currentPage <= 1) return;
+        currentPage -= 1;
+        reloadFromApi();
+      });
+
+      nextBtn.addEventListener('click', () => {
+        if (!hasMorePages && currentPage >= totalPages) return;
+        currentPage += 1;
+        reloadFromApi();
       });
     })
     .catch(() => {

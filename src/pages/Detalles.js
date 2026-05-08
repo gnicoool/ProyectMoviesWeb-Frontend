@@ -5,7 +5,8 @@ import {
   getDirectors,
   getLangs,
   resolveMediaUrl,
-  createRating,
+  getMovieRating,
+  createMovieRating,
   deleteMovie,
 } from '../services/api.js';
 import { navigate } from '../router.js';
@@ -19,13 +20,29 @@ function labelFromList(list, id, idKey, formatRow) {
 export function renderDetalle(container, idMovie) {
   container.innerHTML = '<p class="status-msg">Cargando...</p>';
 
+  function parseRatingData(payload) {
+    if (!payload || typeof payload !== 'object') return { average: null, count: null };
+
+    const averageRaw = payload.average ?? null;
+    const countRaw = payload.votes ?? null;
+
+    const averageNum = averageRaw != null ? Number(averageRaw) : null;
+    const countNum = countRaw != null ? Number(countRaw) : null;
+
+    return {
+      average: Number.isNaN(averageNum) ? null : averageNum,
+      count: Number.isNaN(countNum) ? null : countNum,
+    };
+  }
+
   Promise.all([
     getMovieById(idMovie),
     getCategories(),
     getDirectors(),
     getLangs(),
+    getMovieRating(idMovie),
   ])
-    .then(([movie, categories, directors, langs]) => {
+    .then(([movie, categories, directors, langs, ratingData]) => {
       container.innerHTML = '';
 
       const cats = Array.isArray(categories) ? categories : [];
@@ -117,7 +134,9 @@ content.appendChild(imgCol);
         sinopsis: movie.sinopsis,
         release_year: movie.release_year,
         duration: movie.duration,
-        rating: movie.rating,
+        rating:
+          parseRatingData(ratingData).average ??
+          (movie.rating != null ? Number(movie.rating) : null),
         categoryLabel,
         directorLabel,
         langLabel,
@@ -125,6 +144,17 @@ content.appendChild(imgCol);
 
       const ratingBox = document.createElement('div');
       ratingBox.className = 'rating-row';
+
+      const ratingSummary = document.createElement('span');
+      ratingSummary.className = 'form-hint';
+      const initialRating = parseRatingData(ratingData);
+      if (initialRating.average != null) {
+        const votesText =
+          initialRating.count != null ? ` (${initialRating.count} votos)` : '';
+        ratingSummary.textContent = `Rating actual: ${initialRating.average.toFixed(1)}${votesText}`;
+      } else {
+        ratingSummary.textContent = 'Sin valoraciones todavía.';
+      }
 
       const rateLabel = document.createElement('label');
       rateLabel.htmlFor = 'vote-score';
@@ -151,9 +181,15 @@ content.appendChild(imgCol);
         voteMsg.textContent = '';
         const score = Number(select.value);
         voteBtn.disabled = true;
-        createRating({ id_movie: Number(movie.id_movie), score })
-          .then(() => {
-            voteMsg.textContent = 'Enviando tu voto...';
+        createMovieRating(Number(movie.id_movie), score)
+          .then((updatedRating) => {
+            const current = parseRatingData(updatedRating);
+            if (current.average != null) {
+              const votesText =
+                current.count != null ? ` (${current.count} votos)` : '';
+              ratingSummary.textContent = `Rating actual: ${current.average.toFixed(1)}${votesText}`;
+            }
+            voteMsg.textContent = 'Voto enviado.';
             navigate(window.location.pathname, { replace: true });
           })
           .catch((err) => {
@@ -167,6 +203,7 @@ content.appendChild(imgCol);
       ratingBox.appendChild(rateLabel);
       ratingBox.appendChild(select);
       ratingBox.appendChild(voteBtn);
+      ratingBox.appendChild(ratingSummary);
       ratingBox.appendChild(voteMsg);
 
       detalles.appendChild(ratingBox);
