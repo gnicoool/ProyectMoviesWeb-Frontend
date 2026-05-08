@@ -4,6 +4,7 @@ import { renderCatalog } from './pages/Catalog.js';
 import { renderDetalle } from './pages/Detalles.js';
 import { renderNotFound } from './pages/NotFound.js';
 import { renderEditarMovie } from './pages/EditarMovie.js';
+import { renderCrearMovie } from './pages/CrearMovie.js';
 import { setNavigateHandler } from './router.js';
 
 function matchRoute(pathname) {
@@ -14,6 +15,7 @@ function matchRoute(pathname) {
   if (detail) return { name: 'detail', id: Number(detail[1]) };
   const edit = clean.match(/^\/movies\/(\d+)\/edit$/);
   if (edit) return { name: 'edit', id: Number(edit[1]) };
+  if (clean === '/crear' || clean === '/movies/create') return { name: 'create' };
   return { name: 'notfound' };
 }
 
@@ -42,6 +44,11 @@ export function createRenderRoute() {
     if (route.name === 'edit') {
       setActiveNav('edit');
       renderEditarMovie(main, route.id);
+      return;
+    }
+    if (route.name === 'create') {
+      setActiveNav('crear');
+      renderCrearMovie(main);
       return;
     }
 

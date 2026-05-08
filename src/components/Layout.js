@@ -17,7 +17,9 @@ export function createLayout() {
   nav.setAttribute('aria-label', 'Main');
 
   const links = [
-    { href: '/', text: 'Inicio', nav: 'home' },,
+    { href: '/', text: 'Inicio', nav: 'home' },
+    { href: '/movies', text: 'Catalogo', nav: 'catalog' },
+    { href: '/crear', text: 'Agregar película', nav: 'crear' },
   ];
 
   links.forEach(({ href, text, nav: navKey }) => {
