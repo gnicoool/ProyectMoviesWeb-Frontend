@@ -8,13 +8,21 @@ import { renderCrearMovie } from './pages/CrearMovie.js';
 import { setNavigateHandler } from './router.js';
 
 function matchRoute(pathname) {
-  const clean = pathname.replace(/\/+$/, '') || '/';
+  const base = '/ProyectMoviesWeb-Frontend/';
+
+  const clean = pathname
+  .replace(base, '')
+  .replace(/\/+$/, '') || '/';
+
   if (clean === '/') return { name: 'home' };
   if (clean === '/movies') return { name: 'catalog' };
+
   const detail = clean.match(/^\/movies\/(\d+)$/);
   if (detail) return { name: 'detail', id: Number(detail[1]) };
+
   const edit = clean.match(/^\/movies\/(\d+)\/edit$/);
   if (edit) return { name: 'edit', id: Number(edit[1]) };
+
   if (clean === '/crear' || clean === '/movies/create') return { name: 'create' };
   return { name: 'notfound' };
 }
