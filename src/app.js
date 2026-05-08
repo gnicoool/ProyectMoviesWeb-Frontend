@@ -1,11 +1,20 @@
 import { setActiveNav } from './components/Layout.js';
 import { renderHome } from './pages/Home.js';
+import { renderCatalog } from './pages/Catalog.js';
+import { renderNotFound } from './pages/NotFound.js';
 import { setNavigateHandler } from './router.js';
 
 function matchRoute(pathname) {
   const clean = pathname.replace(/\/+$/, '') || '/';
-  if (clean === '/') return { name: 'home' };
-  const detail = clean.match(/^\/movies\/(\d+)$/);
+  if (clean === '/') return { 
+    name: 'home'
+  };
+  if (clean === '/movies') return { 
+    name: 'catalog' 
+  };
+  return { 
+    name: 'notfound' 
+  };
 }
 
 export function createRenderRoute() {
@@ -18,6 +27,11 @@ export function createRenderRoute() {
     if (route.name === 'home') {
       setActiveNav('home');
       renderHome(main);
+      return;
+    }
+    if (route.name === 'catalog') {
+      setActiveNav('catalog');
+      renderCatalog(main);
       return;
     }
 

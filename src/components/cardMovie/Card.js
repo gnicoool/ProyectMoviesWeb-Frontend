@@ -2,7 +2,6 @@ import { resolveMediaUrl } from '../../services/api.js';
 
 export function createCard(movie) {
   const poster = resolveMediaUrl(movie.image_url);
-
   const card = document.createElement('div');
   card.className = 'card';
 
@@ -22,6 +21,18 @@ export function createCard(movie) {
     imgWrapper.appendChild(span);
   }
 
+  const ratingVal =
+    movie.rating != null && !Number.isNaN(Number(movie.rating))
+      ? Number(movie.rating).toFixed(1)
+      : null;
+
+  if (ratingVal) {
+    const badge = document.createElement('div');
+    badge.className = 'card-badge';
+    badge.textContent = `★ ${ratingVal}`;
+    imgWrapper.appendChild(badge);
+  }
+
   const body = document.createElement('div');
   body.className = 'card-body';
 
@@ -31,12 +42,7 @@ export function createCard(movie) {
 
   const meta = document.createElement('p');
   meta.className = 'card-meta';
-  const year = movie.release_year != null ? String(movie.release_year) : '—';
-  const rating =
-    movie.rating != null && !Number.isNaN(Number(movie.rating))
-      ? ` · ★ ${Number(movie.rating).toFixed(1)}`
-      : '';
-  meta.textContent = `${year}${rating}`;
+  meta.textContent = movie.release_year != null ? String(movie.release_year) : '—';
 
   const link = document.createElement('a');
   link.href = `/movies/${movie.id_movie}`;

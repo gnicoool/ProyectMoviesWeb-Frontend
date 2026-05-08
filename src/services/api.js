@@ -33,17 +33,34 @@ export const getMovies = async (filters = {}) => {
 
 export const getMovieById = (id) => request(`/movies/${id}`);
 
-export const createMovie = (movie) => request('/movies/', { method: 'POST', body: movie });
+export const createMovie = (movie) => request('/movies/', { 
+  method: 'POST', 
+  body: movie 
+});
 
-export const updateMovie = (id, movie) => request(`/movies/${id}`, { method: 'PUT', body: movie });
+export const updateMovie = (id, movie) => request(`/movies/${id}`, { 
+  method: 'PUT', 
+  body: movie 
+});
 
-export const deleteMovie = (id) => request(`/movies/${id}`, { method: 'DELETE' });
+export const deleteMovie = (id) => request(`/movies/${id}`, { 
+  method: 'DELETE' 
+});
 
 export const getCategories = () => request('/categories/');
 export const getDirectors = () => request('/directors/');
+export const getLangs = () => request('/langs/');
+
+export const createRating = (payload) => request('/rating/', { 
+  method: 'POST', 
+  body: payload 
+});
 
 export const uploadImage = (file) => {
   const formData = new FormData();
   formData.append('file', file);
-  return request('/upload-image', { method: 'POST', body: formData });
+  return request('/upload-image', { 
+    method: 'POST', 
+    body: formData 
+  });
 };
