@@ -1,4 +1,4 @@
-const BASE_URL = window.__API_BASE__ || 'http://localhost:8001';
+const BASE_URL = window.__API_BASE__ || 'https://proyectmoviesweb-backend-1.onrender.com';
 
 async function request(path, options = {}) {
   const url = `${BASE_URL}${path}`;
