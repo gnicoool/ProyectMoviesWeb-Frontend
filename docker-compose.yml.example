@@ -1,0 +1,60 @@
+services:
+  db:
+    build: ./ProyectMoviesWeb-Backend/db
+    container_name: postgresWEB
+    ports:
+      - "5435:5432"
+    env_file:
+      - ./ProyectMoviesWeb-Backend/.env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+  backend:
+    build:
+      context: ./ProyectMoviesWeb-Backend
+      dockerfile: api/Dockerfile
+    container_name: backendWEB
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./ProyectMoviesWeb-Backend/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./ProyectMoviesWeb-Backend/api:/app
+      - ./ProyectMoviesWeb-Backend/static:/app/static
+    networks:
+      - app_net
+
+  frontend:
+    build: ./ProyectMoviesWeb-Frontend
+    container_name: frontendWEB
+    ports:
+      - "8005:80"
+    volumes:
+      - ./ProyectMoviesWeb-Frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
